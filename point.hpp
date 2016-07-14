@@ -5,6 +5,7 @@
 #include <sstream>
 #include <ostream>
 #include <cmath>
+#include <math.h>
 
 namespace csce {
 	template<typename T>
@@ -21,7 +22,7 @@ namespace csce {
 		long double distance_to(const csce::point<T>& other) const {
 			T dx = this->x - other.x;
 			T dy = this->y - other.y;
-			return std::sqrtl(dx * dx + dy * dy);
+			return std::sqrt(dx * dx + dy * dy);
 		}
 		
 		bool is_inside_polygon(const std::vector<csce::point<T>>& points){

@@ -7,7 +7,6 @@
 #include <fstream>
 #include <random>
 #include <cmath>
-#include <math.h>
 
 #include "point.hpp"
 
@@ -32,7 +31,7 @@ namespace csce {
 		
 		
 		bool equals(long double a, long double b){
-			return std::fabsl(a - b) <= csce::utility::EPS;
+			return std::abs(a - b) <= csce::utility::EPS;
 		}
 		
 		

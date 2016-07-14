@@ -37,7 +37,7 @@ int main(int argc, char * argv[]) {
 	int max = 50;
 	
 	int c;
-	while((c = getopt(argc, argv, ":df:n:o:r:t:")) != -1){
+	while((c = getopt(argc, argv, ":df:m:M:n:o:r:t:")) != -1){
 		switch(c){
 			case 'd':
 				debug = true;
@@ -102,7 +102,7 @@ int main(int argc, char * argv[]) {
 	//first - load the values into the array, either by populating it
 	//        with random values or by reading the values from a file.
 	//
-	std::cout << "Populating array with " << n << " points ... " << std::flush;
+	std::cout << "Populating array with " << n << " points with values between [" << min << ", " << max << "] ... " << std::flush;
 	if(input_file_path.empty()){
 		//no input file was specified, so populate the array with random numbers
 		points = csce::utility::random_points<long double>(n, min, max);
