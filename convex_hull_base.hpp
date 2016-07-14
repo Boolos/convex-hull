@@ -7,12 +7,14 @@
 #include "point.hpp"
 
 namespace csce {
+	template<typename T>
 	class convex_hull_base {
 	public:
 		virtual std::string name() const = 0;
-		virtual std::vector<csce::point<long double>> compute_hull(const std::vector<csce::point<long double>>& points) const = 0;
-		virtual ~convex_hull_base();
-		convex_hull_base(int _nthreads);
+		virtual std::vector<csce::point<T>> compute_hull(const std::vector<csce::point<T>>& points) const = 0;
+		
+		virtual ~convex_hull_base() {}
+		convex_hull_base(int _nthreads) : nthreads(_nthreads) {}
 		
 	private:
 		int nthreads = 0;

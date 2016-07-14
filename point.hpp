@@ -5,7 +5,6 @@
 #include <sstream>
 #include <ostream>
 #include <cmath>
-#include <math.h>
 
 namespace csce {
 	template<typename T>

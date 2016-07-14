@@ -154,7 +154,7 @@ int main(int argc, char * argv[]) {
 			std::cout << "***********************************" << std::endl;
 		}
 		
-		std::vector<csce::convex_hull_base*> algorithms = csce::convex_hull_implementations::list(thread_count);
+		std::vector<csce::convex_hull_base<long double>*> algorithms = csce::convex_hull_implementations::list<long double>(thread_count);
 		if(iteration == 0){
 			algorithm_tuples.reserve(algorithms.size());
 			for(auto& algorithm : algorithms){

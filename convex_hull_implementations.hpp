@@ -12,7 +12,13 @@ namespace csce {
 		 * This defines the convex hull implementations to run. To add a new implementation,
 		 * add an entry to the vector returned by this method.
 		 */
-		std::vector<csce::convex_hull_base*> list(int thread_count);
+		template<typename T>
+		std::vector<csce::convex_hull_base<T>*> list(int thread_count) {
+			std::vector<csce::convex_hull_base<T>*> algorithms;
+			algorithms.push_back(new csce::graham_scan<T>(thread_count));
+			
+			return algorithms;
+		}
 	}
 }
 
