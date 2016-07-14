@@ -12,7 +12,7 @@ namespace csce {
 	public:
 		graham_scan(int _nthreads);
 		std::string name() const;
-		std::vector<csce::point> compute_hull(const std::vector<csce::point>& points) const;
+		std::vector<csce::point<long double>> compute_hull(const std::vector<csce::point<long double>>& points) const;
 		~graham_scan();
 	};
 }

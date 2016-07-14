@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <set>
 #include <cmath>
+#include <algorithm>
 
 #include "point.hpp"
 #include "convex_hull_base.hpp"
@@ -28,8 +29,8 @@ int main(int argc, char * argv[]) {
 	long long int duration = 0;
 	bool debug = false;
 	
-	std::vector<csce::point> points;
-	std::vector<csce::point> points_copy;
+	std::vector<csce::point<long double>> points;
+	std::vector<csce::point<long double>> points_copy;
 	std::vector<std::tuple<std::string, long long int, int>> algorithm_tuples;
 	
 	int min = 0;
@@ -104,10 +105,10 @@ int main(int argc, char * argv[]) {
 	std::cout << "Populating array with " << n << " points ... " << std::flush;
 	if(input_file_path.empty()){
 		//no input file was specified, so populate the array with random numbers
-		points = csce::utility::random_points(n, min, max);
+		points = csce::utility::random_points<long double>(n, min, max);
 	} else {
 		//load from the specified file
-		points = csce::utility::points_from_file(n, input_file_path);
+		points = csce::utility::points_from_file<long double>(n, input_file_path);
 	}
 	std::cout << "done." << std::endl;
 	
@@ -169,7 +170,7 @@ int main(int argc, char * argv[]) {
 			std::cout << "Computing convex hull ... " << std::flush;
 			
 			std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-			std::vector<csce::point> hull_points = algorithms[x]->compute_hull(points_copy);
+			std::vector<csce::point<long double>> hull_points = algorithms[x]->compute_hull(points_copy);
 			std::chrono::high_resolution_clock::time_point stop_time = std::chrono::high_resolution_clock::now();
 			duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time).count();
 			std::get<1>(algorithm_tuples[x]) += duration;

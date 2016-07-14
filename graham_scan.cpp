@@ -7,6 +7,6 @@ std::string csce::graham_scan::name() const {
 	return "Graham's Scan";
 }
 
-std::vector<csce::point> csce::graham_scan::compute_hull(const std::vector<csce::point>& points) const {
+std::vector<csce::point<long double>> csce::graham_scan::compute_hull(const std::vector<csce::point<long double>>& points) const {
 	return points;
 }
