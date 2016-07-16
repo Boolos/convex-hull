@@ -22,7 +22,8 @@ namespace csce {
 	}
 }
 
-int main(int argc, char* argv[]) {
+template<typename T>
+int run(int argc, char* argv[]) {
 	int n = 320; //the default number of points. This can be changed by specifying the -n runtime argument.
 	int thread_count = std::max(static_cast<unsigned int>(4), std::thread::hardware_concurrency()); //the default number of threads. This can be changed by the -t runtime argument.
 	std::string input_file_path; //where to load data from, if anywhere. If this is not specified, the data will be generated at runtime.
@@ -32,12 +33,12 @@ int main(int argc, char* argv[]) {
 	bool debug = false;
 	bool test_mode = false;
 	
-	std::vector<csce::point<long double>> points;
-	std::vector<csce::point<long double>> points_copy;
+	std::vector<csce::point<T>> points;
+	std::vector<csce::point<T>> points_copy;
 	std::vector<std::tuple<std::string, long long int, int>> algorithm_tuples;
 	
-	int min = 0;
-	int max = 50;
+	int min = -100;
+	int max = 100;
 	
 	int c;
 	while((c = getopt(argc, argv, ":dDf:m:M:n:o:r:t:")) != -1){
@@ -108,6 +109,7 @@ int main(int argc, char* argv[]) {
 		csce::test(debug).run();
 	}
 	
+	
 	//
 	//first - load the values into the array, either by populating it
 	//        with random values or by reading the values from a file.
@@ -115,14 +117,12 @@ int main(int argc, char* argv[]) {
 	std::cout << "Populating array with " << n << " points with values between [" << min << ", " << max << "] ... " << std::flush;
 	if(input_file_path.empty()){
 		//no input file was specified, so populate the array with random numbers
-		points = csce::utility::random_points<long double>(n, min, max);
+		points = csce::utility::random_points<T>(n, min, max);
 	} else {
 		//load from the specified file
-		points = csce::utility::points_from_file<long double>(n, input_file_path);
+		points = csce::utility::points_from_file<T>(n, input_file_path);
 	}
 	std::cout << "done." << std::endl;
-	
-	
 	
 	
 	//
@@ -164,7 +164,7 @@ int main(int argc, char* argv[]) {
 			std::cout << "***********************************" << std::endl;
 		}
 		
-		std::vector<csce::convex_hull_base<long double>*> algorithms = csce::convex_hull_implementations::list<long double>(thread_count);
+		std::vector<csce::convex_hull_base<T>*> algorithms = csce::convex_hull_implementations::list<T>(thread_count);
 		if(iteration == 0){
 			algorithm_tuples.reserve(algorithms.size());
 			for(auto& algorithm : algorithms){
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
 			std::cout << "Computing convex hull ... " << std::flush;
 			
 			std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
-			std::vector<csce::point<long double>> hull_points = algorithms[x]->compute_hull(points_copy);
+			std::vector<csce::point<T>> hull_points = algorithms[x]->compute_hull(points_copy);
 			std::chrono::high_resolution_clock::time_point stop_time = std::chrono::high_resolution_clock::now();
 			duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time).count();
 			std::get<1>(algorithm_tuples[x]) += duration;
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
 			
 			std::cout << "Validating convex hull ... " << std::flush;
 			std::vector<std::string> error_messages;
-			bool valid = csce::utility::validate<long double>(points_copy, points, max, error_messages);
+			bool valid = csce::utility::validate<T>(hull_points, points, max, error_messages);
 			std::cout << (valid ? "correct" : "INCORRECT") << std::endl;
 			if(!valid){
 				std::cout << "There were " << error_messages.size() << " errors.";
@@ -241,4 +241,8 @@ int main(int argc, char* argv[]) {
 	}
 	
 	return 0;
+}
+
+int main(int argc, char* argv[]) {
+	run<long double>(argc, argv);
 }

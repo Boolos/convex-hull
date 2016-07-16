@@ -36,10 +36,17 @@ namespace csce {
 		
 		
 		template<typename T>
-		std::vector<csce::point<T>> random_points(int n, int min, int max) {
+		using uniform_distribution = typename std::conditional<
+			std::is_integral<T>::value, std::uniform_int_distribution<T>,
+			typename std::conditional<std::is_floating_point<T>::value, std::uniform_real_distribution<T>, void>::type
+		>::type;
+		
+		
+		template<typename T>
+		std::vector<csce::point<T>> random_points(int n, T min, T max) {
 			std::random_device rd;
 			std::mt19937 mt(rd());
-			std::uniform_real_distribution<T> dist(min, max);
+			csce::utility::uniform_distribution<T> dist(min, max);
 			
 			std::vector<csce::point<T>> points;
 			points.reserve(n);
