@@ -14,13 +14,15 @@
 #include "utility.hpp"
 #include "convex_hull_implementations.hpp"
 
+#include "test.hpp"
+
 namespace csce {
 	bool algorithm_tuple_comparator (const std::tuple<std::string, long long int, int>& a, const std::tuple<std::string, long long int, int>& b){
 		return std::get<1>(a) < std::get<1>(b);
 	}
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char* argv[]) {
 	int n = 320; //the default number of points. This can be changed by specifying the -n runtime argument.
 	int thread_count = std::max(static_cast<unsigned int>(4), std::thread::hardware_concurrency()); //the default number of threads. This can be changed by the -t runtime argument.
 	std::string input_file_path; //where to load data from, if anywhere. If this is not specified, the data will be generated at runtime.
@@ -28,6 +30,7 @@ int main(int argc, char * argv[]) {
 	int iterations = 1; //the number of times to sort the data
 	long long int duration = 0;
 	bool debug = false;
+	bool test_mode = false;
 	
 	std::vector<csce::point<long double>> points;
 	std::vector<csce::point<long double>> points_copy;
@@ -37,10 +40,14 @@ int main(int argc, char * argv[]) {
 	int max = 50;
 	
 	int c;
-	while((c = getopt(argc, argv, ":df:m:M:n:o:r:t:")) != -1){
+	while((c = getopt(argc, argv, ":dDf:m:M:n:o:r:t:")) != -1){
 		switch(c){
 			case 'd':
 				debug = true;
+				break;
+				
+			case 'D':
+				test_mode = true;
 				break;
 				
 			case 'f':
@@ -94,9 +101,12 @@ int main(int argc, char * argv[]) {
 		std::swap(min, max);
 	}
 	
-	points.reserve(n);
-	points_copy.reserve(n);
-	
+	//
+	// run unit tests
+	//
+	if(test_mode){
+		csce::test(debug).run();
+	}
 	
 	//
 	//first - load the values into the array, either by populating it
@@ -163,7 +173,7 @@ int main(int argc, char * argv[]) {
 		}
 		
 		for(std::size_t x=0; x<algorithms.size(); x++){
-			std::copy(points.begin(), points.end(), points_copy.begin());
+			points_copy = points;
 			
 			std::cout << "-------------------------------------------" << std::endl;
 			std::cout << "Testing convex hull implementation (" << algorithms[x]->name() << ")" << std::endl;
@@ -179,13 +189,10 @@ int main(int argc, char * argv[]) {
 			
 			std::cout << "Validating convex hull ... " << std::flush;
 			std::vector<std::string> error_messages;
-			int error_count = csce::utility::validate(points, points_copy, error_messages);
-			std::cout << ((error_count == 0) ? "correct" : "INCORRECT") << std::endl;
-			if(error_count > 0){
-				std::cout << "There were " << error_count << " errors.";
-				if(error_count > error_messages.size()){
-					std::cout << " Displaying only the first " << error_messages.size() << " errors.";
-				}
+			bool valid = csce::utility::validate<long double>(points_copy, points, max, error_messages);
+			std::cout << (valid ? "correct" : "INCORRECT") << std::endl;
+			if(!valid){
+				std::cout << "There were " << error_messages.size() << " errors.";
 				std::cout << std::endl;
 				for(std::string& message : error_messages){
 					std::cout << "Error: " << message << std::endl;

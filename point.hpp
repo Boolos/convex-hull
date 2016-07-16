@@ -8,9 +8,6 @@
 
 namespace csce {
 	template<typename T>
-	class vector2d;
-	
-	template<typename T>
 	class point {
 	public:
 		T x = {};
@@ -22,14 +19,6 @@ namespace csce {
 			T dx = this->x - other.x;
 			T dy = this->y - other.y;
 			return std::sqrt(dx * dx + dy * dy);
-		}
-		
-		bool is_inside_polygon(const std::vector<csce::point<T>>& points){
-			
-		}
-		
-		static bool ccw(const csce::point<T>& a, const csce::point<T>& b, const csce::point<T>& c){
-			return csce::vector2d<T>(a, b).ccw(csce::vector2d<T>(a, c));
 		}
 		
 		std::string str() const {

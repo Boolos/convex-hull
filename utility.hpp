@@ -7,13 +7,14 @@
 #include <fstream>
 #include <random>
 #include <cmath>
+#include <unordered_set>
 
 #include "point.hpp"
+#include "vector2d.hpp"
+#include "line.hpp"
 
 namespace csce {
 	namespace utility {
-		const long double EPS = 1E-9;
-		
 		template<typename f, typename... args>
 		long long int duration_function(f func, args&&... arg){
 			std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
@@ -23,16 +24,7 @@ namespace csce {
 		}
 		
 		
-		std::string duration_string(long long int duration) {
-			std::stringstream out;
-			out << (duration / 1E9) << " seconds";
-			return out.str();
-		}
-		
-		
-		bool equals(long double a, long double b){
-			return std::abs(a - b) <= csce::utility::EPS;
-		}
+		std::string duration_string(long long int duration);
 		
 		
 		template<typename T>
@@ -93,35 +85,100 @@ namespace csce {
 		
 		
 		template<typename T>
-		int validate(const std::vector<csce::point<T>>& points, const std::vector<csce::point<T>>& convex_hull, std::vector<std::string>& output_errors) {
-			int error_count = 0;
+		bool is_convex(const std::vector<csce::point<T>>& polygon, std::vector<std::string>& output_errors) {
+			//validate all points in the convex_hull input are either all clockwise or counterclockwise, but not both.
+			bool ccw = true;
+			for(std::size_t x=0; x<polygon.size()-2; x++){
+				bool tmp_ccw = csce::vector2d<T>(polygon[x], polygon[x+1]).ccw(csce::vector2d<T>(polygon[x], polygon[x+2]));
+				if(x == 0){
+					ccw = tmp_ccw;
+				} else {
+					if(ccw != tmp_ccw){
+						std::stringstream error;
+						error << "The polygon has both clockwise and counter-clockwise angles starting at index " << x << ". {";
+						error << polygon[x-1].str() << ", ";
+						error << polygon[x].str() << ", ";
+						error << polygon[x+1].str() << ", ";
+						error << polygon[x+2].str() << "}";
+						output_errors.push_back(error.str());
+						return false;
+					}
+				}
+			}
 			
-			//TODO: validate that all points in the convex hull are counter clock wise (or maybe all clockwise?)
-			
-			//TODO: then for all remaining points, validate that the remaining points are not outside the convex hull
-			
+			return true;
+		}
+		
+		
+		template<typename T>
+		bool contains_all_points(const std::vector<csce::point<T>>& convex_hull, const std::vector<csce::point<T>>& points, T max, std::vector<std::string>& output_errors) {
 			std::unordered_set<csce::point<T>> point_set;
 			for(auto& point : points){
 				point_set.insert(point);
 			}
 			
+			for(auto& point : convex_hull){
+				point_set.erase(point);
+			}
 			
+			for(auto& point : point_set){
+				int point_intersections = 0;
+				int intersections = 0;
+				csce::line<T> ray(point, csce::point<T>(max + 1, point.y));
+				for(std::size_t x=0; x<convex_hull.size() - 1; x++){
+					csce::line<T> segment(convex_hull[x], convex_hull[x+1]);
+					if(segment.contains_point(point)){
+						//if the point is on the border of the polygon, then
+						//the polygon "contains" the point.
+						return true;
+					}
+					if(ray.contains_point(segment.a) || ray.contains_point(segment.b)){
+						//if either segment end-point is on the ray, then two segments
+						//will intersect with the ray (this segment and the segment sharing
+						//this end-point)
+						point_intersections++;
+					} else if(ray.intersects(segment)){
+						intersections++;
+					}
+				}
+				intersections += (point_intersections >> 1);
+				if(intersections % 2 == 0){
+					std::stringstream error;
+					error << "Point " << point.str() << " is not inside the convex hull.";
+					output_errors.push_back(error.str());
+					return false;
+				}
+			}
 			
-			//TODO: generate the convex hull points
-			//TODO: validate that the convex_hull parameter and the generated convex hull contain the same points.
+			return true;
+		}
+		
+		
+		template<typename T>
+		bool validate(const std::vector<csce::point<T>>& convex_hull, const std::vector<csce::point<T>>& points, T max, std::vector<std::string>& output_errors) {
+			if(convex_hull.empty()){
+				return points.empty();
+			}
 			
-			/*for(int x=1; x<n; x++){
-			 if(array[x-1] > array[x]){
-			 if(error_count < 10){
-			 std::stringstream error;
-			 error << "validate: array[" << (x-1) << "] = " << array[x-1] << " is not less than or equal to array[" << x << "] = " << array[x];
-			 output_errors.push_back(error.str());
-			 }
-			 error_count++;
-			 }
-			 }*/
+			if(points.empty()){
+				return false;
+			}
 			
-			return error_count;
+			std::vector<csce::point<T>> polygon = convex_hull;
+			if(polygon[0] != polygon[polygon.size() - 1]){
+				//if the polygon is not closed, close the polygon
+				polygon.push_back(polygon[0]);
+			}
+			
+			if(!csce::utility::is_convex(polygon, output_errors)){
+				return false;
+			}
+			
+			if(!csce::utility::contains_all_points(polygon, points, max, output_errors)){
+				return false;
+			}
+			
+			return true;
 		}
 	}
 }
