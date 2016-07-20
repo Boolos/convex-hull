@@ -34,12 +34,12 @@ namespace csce {
 			return this->orientation(other) < 0;
 		}
 		
-		bool colinear(const csce::vector2d<T>& other) const {
+		bool collinear(const csce::vector2d<T>& other) const {
 			return this->orientation(other) == 0;
 		}
 		
 		/**
-		 * Returns 0 if the other vector is colinear with this vector,
+		 * Returns 0 if the other vector is collinear with this vector,
 		 * +1 if the other vector is counterclockwise to this vector,
 		 * -1 if the other vector is clockwise to this vector.
 		 */
