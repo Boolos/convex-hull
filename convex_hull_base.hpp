@@ -16,7 +16,7 @@ namespace csce {
 		virtual ~convex_hull_base() {}
 		convex_hull_base(int _nthreads) : nthreads(_nthreads) {}
 		
-	private:
+	protected:
 		int nthreads = 0;
 	};
 }
