@@ -114,12 +114,13 @@ int run(int argc, char* argv[]) {
 	//first - load the values into the array, either by populating it
 	//        with random values or by reading the values from a file.
 	//
-	std::cout << "Populating array with " << n << " points with values between [" << min << ", " << max << "] ... " << std::flush;
 	if(input_file_path.empty()){
 		//no input file was specified, so populate the array with random numbers
+		std::cout << "Populating array with " << n << " points with values between [" << min << ", " << max << "] ... " << std::flush;
 		points = csce::utility::random_points<T>(n, min, max);
 	} else {
 		//load from the specified file
+		std::cout << "Populating array with " << n << " points from the file (" << input_file_path << ") ... " << std::flush;
 		points = csce::utility::points_from_file<T>(n, input_file_path);
 	}
 	std::cout << "done." << std::endl;
@@ -141,8 +142,8 @@ int run(int argc, char* argv[]) {
 	if(debug){
 		std::cout << "Running in debug mode ... printing array" << std::endl;
 		std::cout << "-------" << std::endl;
-		for(auto& point : points){
-			std::cout << point.str() << std::endl;
+		for(std::size_t x=0; x<points.size(); x++){
+			std::cout << x << "\t" << points[x].str() << std::endl;
 		}
 		std::cout << "-------" << std::endl;
 		std::cout << "done printing array" << std::endl << std::endl;
@@ -213,32 +214,30 @@ int run(int argc, char* argv[]) {
 		}
 	}
 	
-	if(iterations > 1){
-		std::sort(algorithm_tuples.begin(), algorithm_tuples.end(), csce::algorithm_tuple_comparator);
+	std::sort(algorithm_tuples.begin(), algorithm_tuples.end(), csce::algorithm_tuple_comparator);
+	
+	std::cout << std::endl;
+	std::cout << "===================================" << std::endl;
+	std::cout << "== Run statistics for " << iterations << " runs" << std::endl;
+	std::cout << "===================================" << std::endl;
+	
+	for(std::size_t x=0; x<algorithm_tuples.size(); x++){
+		std::string sort_name;
+		long long int sort_duration = 0L;
+		int sort_correct = 0;
+		std::tie(sort_name, sort_duration, sort_correct) = algorithm_tuples[x];
 		
-		std::cout << std::endl;
-		std::cout << "===================================" << std::endl;
-		std::cout << "== Run statistics for " << iterations << " runs" << std::endl;
-		std::cout << "===================================" << std::endl;
+		std::cout << "==" << std::endl;
+		std::cout << "== " << sort_name << std::endl;
+		std::cout << "==   Total time: " << csce::utility::duration_string(sort_duration) << std::endl;
+		std::cout << "== Average time: " << csce::utility::duration_string(sort_duration / iterations) << std::endl;
 		
-		for(std::size_t x=0; x<algorithm_tuples.size(); x++){
-			std::string sort_name;
-			long long int sort_duration = 0L;
-			int sort_correct = 0;
-			std::tie(sort_name, sort_duration, sort_correct) = algorithm_tuples[x];
-			
-			std::cout << "==" << std::endl;
-			std::cout << "== " << sort_name << std::endl;
-			std::cout << "==   Total time: " << csce::utility::duration_string(sort_duration) << std::endl;
-			std::cout << "== Average time: " << csce::utility::duration_string(sort_duration / iterations) << std::endl;
-			
-			long double correct_percent = 100.0L * static_cast<long double>(sort_correct) / static_cast<long double>(iterations);
-			std::cout << "==      Correct: " << correct_percent << "%  (" << sort_correct << " / " << iterations << ")" << std::endl;
-			std::cout << "==" << std::endl;
-		}
-		
-		std::cout << "===================================" << std::endl;
+		long double correct_percent = 100.0L * static_cast<long double>(sort_correct) / static_cast<long double>(iterations);
+		std::cout << "==      Correct: " << correct_percent << "%  (" << sort_correct << " / " << iterations << ")" << std::endl;
+		std::cout << "==" << std::endl;
 	}
+	
+	std::cout << "===================================" << std::endl;
 	
 	return 0;
 }

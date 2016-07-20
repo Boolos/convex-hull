@@ -65,7 +65,7 @@ namespace csce {
 			
 			std::ifstream file(file_path, std::ios::in);
 			if(file.is_open()){
-				int x=0, y=0;
+				T x=0, y=0;
 				while(file >> x >> y){
 					points.push_back(csce::point<T>(x, y));
 					if(points.size() >= n){
