@@ -113,6 +113,26 @@ bool csce::test::test_convex_polygon() const {
 			std::cout << (convex == expected_result ? "correct" : "INCORRECT") << std::endl;
 		}
 	}
+
+	{
+                std::vector<csce::point<int>> polygon;
+                polygon.push_back(csce::point<int>(1, 2));
+                
+                bool expected_result = true;
+                
+                std::vector<std::string> error_messages;
+                bool convex = csce::utility::is_convex(polygon, error_messages);
+                if(this->debug){
+                        for(auto& error : error_messages){
+                                std::cout << "ERROR: " << error << std::endl;
+                        }
+                }
+
+                correct &= (convex == expected_result);
+                if(this->debug){
+                        std::cout << (convex == expected_result ? "correct" : "INCORRECT") << std::endl;
+                }
+        }
 	
 	std::cout << (correct ? "correct" : "INCORRECT") << std::endl;
 	return correct;
@@ -815,6 +835,35 @@ bool csce::test::test_validate_convex_hull() const {
 		}
 	}
 	
+	{
+                std::vector<csce::point<int>> polygon;
+                polygon.push_back(csce::point<int>(0, 0));
+                polygon.push_back(csce::point<int>(10, 0));
+
+                std::vector<csce::point<int>> points;
+                for(auto& point : polygon){
+                        points.push_back(point);
+                }
+                points.push_back(csce::point<int>(1, 1));
+
+                int max = 20;
+
+                bool expected_result = false;
+
+                std::vector<std::string> error_messages;
+                bool result = csce::utility::validate(polygon, points, max, error_messages);
+                if(this->debug){
+                        for(auto& error : error_messages){
+                                std::cout << error << std::endl;
+                        }
+                }
+
+                correct &= (result == expected_result);
+                if(this->debug){
+                        std::cout << (result == expected_result ? "correct" : "INCORRECT") << std::endl;
+                }
+        }
+
 	std::cout << (correct ? "correct" : "INCORRECT") << std::endl;
 	return correct;
 }

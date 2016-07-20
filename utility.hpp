@@ -93,6 +93,10 @@ namespace csce {
 		
 		template<typename T>
 		bool is_convex(const std::vector<csce::point<T>>& polygon, std::vector<std::string>& output_errors) {
+			if(polygon.size() <= 3){
+				return true; //triangles, line segments, and points are considered convex
+			}
+
 			//validate all points in the convex_hull input are either all clockwise or counterclockwise, but not both.
 			bool ccw = true;
 			for(std::size_t x=0; x<polygon.size()-2; x++){

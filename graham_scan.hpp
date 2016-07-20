@@ -22,6 +22,10 @@ namespace csce {
 		
 		
 		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) const {
+			if(points.size() <= 3){
+				return points;
+			}
+
 			std::size_t index = this->pivot_index(points);
 			if(index != 0){
 				std::swap(points[0], points[index]);

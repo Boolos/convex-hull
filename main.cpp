@@ -8,6 +8,7 @@
 #include <set>
 #include <cmath>
 #include <algorithm>
+#include <sstream>
 
 #include "point.hpp"
 #include "convex_hull_base.hpp"
@@ -37,8 +38,8 @@ int run(int argc, char* argv[]) {
 	std::vector<csce::point<T>> points_copy;
 	std::vector<std::tuple<std::string, long long int, int>> algorithm_tuples;
 	
-	int min = -100;
-	int max = 100;
+	T min = -100;
+	T max = 100;
 	
 	int c;
 	while((c = getopt(argc, argv, ":dDf:m:M:n:o:r:t:")) != -1){
@@ -59,19 +60,22 @@ int run(int argc, char* argv[]) {
 				
 			case 'm':
 				if(optarg != NULL){
-					min = std::stoi(optarg);
+					std::stringstream argument_stream(optarg);
+					argument_stream >> min;
 				}
 				break;
 				
 			case 'M':
 				if(optarg != NULL){
-					max = std::stoi(optarg);
+					std::stringstream argument_stream(optarg);
+					argument_stream >> max;
 				}
 				break;
 				
 			case 'n':
 				if(optarg != NULL){
-					n = std::stoi(optarg);
+					std::stringstream argument_stream(optarg);
+					argument_stream >> n;
 				}
 				break;
 				
@@ -83,13 +87,15 @@ int run(int argc, char* argv[]) {
 				
 			case 'r':
 				if(optarg != NULL){
-					iterations = std::stoi(optarg);
+					std::stringstream argument_stream(optarg);
+					argument_stream >> iterations;
 				}
 				break;
 				
 			case 't':
 				if(optarg != NULL){
-					thread_count = std::stoi(optarg);
+					std::stringstream argument_stream(optarg);
+					argument_stream >> thread_count;
 				}
 				break;
 				
@@ -188,7 +194,7 @@ int run(int argc, char* argv[]) {
 			
 			std::cout << "done in " << csce::utility::duration_string(duration) << std::endl;
 			
-			std::cout << "Validating convex hull ... " << std::flush;
+			std::cout << "Validating convex hull (contains " << hull_points.size() << " / " << n << " points) ... " << std::flush;
 			std::vector<std::string> error_messages;
 			bool valid = csce::utility::validate<T>(hull_points, points, max, error_messages);
 			std::cout << (valid ? "correct" : "INCORRECT") << std::endl;
