@@ -194,6 +194,17 @@ int run(int argc, char* argv[]) {
 			
 			std::cout << "done in " << csce::utility::duration_string(duration) << std::endl;
 			
+			//if running in debug mode, print the values of the array
+			if(debug){
+				std::cout << "Running in debug mode ... printing convex hull" << std::endl;
+				std::cout << "-------" << std::endl;
+				for(std::size_t y=0; y<hull_points.size(); y++){
+					std::cout << "   " << y << "\t" << hull_points[y].str() << std::endl;
+				}
+				std::cout << "-------" << std::endl;
+				std::cout << "done printing convex" << std::endl << std::endl;
+			}
+
 			std::cout << "Validating convex hull (contains " << hull_points.size() << " / " << n << " points) ... " << std::flush;
 			std::vector<std::string> error_messages;
 			bool valid = csce::utility::validate<T>(hull_points, points, max, error_messages);
