@@ -22,7 +22,7 @@ namespace csce {
 		
 		
 		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) const {
-			return this->performSortestPathCalculation(points);
+			return this->performShortestPathCalculation(points);
 		}
 		
 		
@@ -30,9 +30,8 @@ namespace csce {
 		
 		
 	private:
-		std::vector<csce::point<T>> performSortestPathCalculation(const std::vector<csce::point<T>>& points) const {
+		std::vector<csce::point<T>> performShortestPathCalculation(const std::vector<csce::point<T>>& points) const {
 			std::vector<csce::point<T>> resultsOfShortestPath;
-			
 			int topMostPoint = 0;
 			for(int i = 0; i < points.size(); i++){
 				if(points[i].y > points[topMostPoint].y){
@@ -61,15 +60,14 @@ namespace csce {
 		
 		
 		int operation(csce::point<T> d, csce::point<T> e, csce::point<T> f) const {
-			int resultsofSin = (e.y - d.y)*(f.x - e.x) - (e.x - d.x)*(f.y - e.y);
-			if(resultsofSin == 0){
-				return 0;
-			}
-			else if(resultsofSin > 0) {
-				return 1;
+			csce::vector2d<T> a(e,d);
+			csce::vector2d<T> b(e,f);
+			bool is_counterclockwise = a.ccw(b);
+			if(is_counterclockwise == true){
+				return 2;
 			}
 			else {
-				return 2;
+				return 0;
 			}
 		}
 		
