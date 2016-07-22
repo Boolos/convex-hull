@@ -21,7 +21,7 @@ namespace csce {
 		}
 		
 		
-		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) const {
+		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) {
 			if(points.size() <= 3){
 				return points;
 			}

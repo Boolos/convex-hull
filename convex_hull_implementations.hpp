@@ -19,7 +19,7 @@ namespace csce {
 			std::vector<csce::convex_hull_base<T>*> algorithms;
 			algorithms.push_back(new csce::graham_scan<T>(thread_count));
 			algorithms.push_back(new csce::graham_scan_parallel<T>(thread_count));
-			//algorithms.push_back(new csce::jarvis_march<T>(thread_count));
+			algorithms.push_back(new csce::jarvis_march<T>(thread_count));
 
 			return algorithms;
 		}
