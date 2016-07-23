@@ -9,6 +9,7 @@
 #include <cmath>
 #include <unordered_set>
 #include <thread>
+#include <algorithm>
 
 #include "point.hpp"
 #include "vector2d.hpp"
@@ -92,6 +93,27 @@ namespace csce {
 		}
 		
 		
+		template<typename T>
+		void sort_points(std::vector<csce::point<T>>& polygon) {
+			/*remove any duplicate points (such as if the polygon is closed originally)*/
+                        std::unordered_set<csce::point<T>> point_set;
+                        for(auto& point : polygon){
+                                point_set.insert(point);
+                        }
+
+                        polygon.clear();
+			for(auto& point : point_set){
+                                polygon.push_back(point);
+                        }
+
+                        /*pick the first point to be the pivot point and sort all other points with respect to that point.*/
+                        std::sort(polygon.begin() + 1, polygon.end(), [&](csce::point<T>& a, csce::point<T>& b) {
+                                csce::vector2d<T> pa(polygon[0], a);
+                                csce::vector2d<T> pb(polygon[0], b);
+                                return pa.ccw(pb);
+                        });
+		}
+
 		template<typename T>
 		bool is_convex(const std::vector<csce::point<T>>& polygon, std::vector<std::string>& output_errors) {
 			if(polygon.size() <= 3){
@@ -211,7 +233,10 @@ namespace csce {
 				return false;
 			}
 			
+			//sort the points so that they are in either counterclockwise or clockwise order.
 			std::vector<csce::point<T>> polygon = convex_hull;
+			csce::utility::sort_points(polygon);
+
 			if(polygon[0] != polygon[polygon.size() - 1]){
 				//if the polygon is not closed, close the polygon
 				polygon.push_back(polygon[0]);
