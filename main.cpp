@@ -26,7 +26,7 @@ namespace csce {
 template<typename T>
 int run(int argc, char* argv[]) {
 	int n = 320; //the default number of points. This can be changed by specifying the -n runtime argument.
-	int thread_count = std::max(static_cast<unsigned int>(4), std::thread::hardware_concurrency()); //the default number of threads. This can be changed by the -t runtime argument.
+	int thread_count = std::thread::hardware_concurrency(); //the default number of threads. This can be changed by the -t runtime argument.
 	std::string input_file_path; //where to load data from, if anywhere. If this is not specified, the data will be generated at runtime.
 	std::string output_file_path; //where to write out the generated data, if anywhere.
 	int iterations = 1; //the number of times to sort the data
@@ -107,6 +107,8 @@ int run(int argc, char* argv[]) {
 	if(min > max){
 		std::swap(min, max);
 	}
+
+	std::cout << "Running with " << thread_count << " threads out of a total of " << std::thread::hardware_concurrency() << " cores." << std::endl;
 	
 	//
 	// run unit tests
@@ -126,8 +128,9 @@ int run(int argc, char* argv[]) {
 		points = csce::utility::random_points<T>(n, min, max);
 	} else {
 		//load from the specified file
-		std::cout << "Populating array with " << n << " points from the file (" << input_file_path << ") ... " << std::flush;
+		std::cout << "Populating array with points from the file (" << input_file_path << ") ... " << std::flush;
 		points = csce::utility::points_from_file<T>(n, input_file_path);
+		std::cout << "loaded " << points.size() << " points ... " << std::flush;
 	}
 	std::cout << "done." << std::endl;
 	

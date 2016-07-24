@@ -57,7 +57,10 @@ namespace csce {
 				}
 			}
 			
-			s.shrink_to_fit();
+			if(s.front() == s.back()){
+				s.pop_back(); //the polygon is closed, so remove the last element to remove the duplicate point
+			}
+
 			return s;
 		}
 		
