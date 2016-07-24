@@ -16,7 +16,7 @@
 
 namespace csce
 {
-	template<typename T, typename U = graham_scan_parallel<T>, typename V = jarvis_march_parallel<T>>
+	template<typename T, typename U = graham_scan<T>, typename V = jarvis_march_parallel<T>>
 	class composable_hulls : public csce::convex_hull_base<T>
 	{
 	public:
