@@ -8,14 +8,14 @@
 #include <math.h>
 
 #include "convex_hull_base.hpp"
-#include "graham_scan.hpp"
-#include "jarvis_march.hpp"
+#include "graham_scan_parallel.hpp"
+#include "jarvis_march_parallel.hpp"
 #include "point.hpp"
 #include "vector2d.hpp"
 
 namespace csce
 {
-	template<typename T, typename U = graham_scan<T>, typename V = graham_scan<T>>
+	template<typename T, typename U = graham_scan_parallel<T>, typename V = jarvis_march_parallel<T>>
 	class composable_hulls : public csce::convex_hull_base<T>
 	{
 	public:
