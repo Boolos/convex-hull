@@ -56,19 +56,18 @@ namespace csce
 					size_t sector = theta / secSize;
 					localSectors[sector].push_back(points[i]);
 				}
-				#pragma omp critical
-				sectors.insert(sectors.end(), localSectors.begin(), localSectors.end());
 				
+				#pragma omp critical
+				for(size_t i = 0; i < this->nthreads; i++)
+					sectors[i].insert(sectors[i].end(), localSectors[i].begin(), localSectors[i].end());
+				
+				#pragma omp barrier
 				// local convex hull
 				size_t id = omp_get_thread_num();
 				hulls[id] = U(1).compute_hull(sectors[id]);
 			}
 			
 			// composition of local hulls
-			
-			for(size_t i = 0; i < this->nthreads; i++)
-				std::cout << i << ": " << hulls[i].size() << std::endl;
-			
 			std::vector<csce::point<T>> resultsOfShortestPath = hulls[0];
 			V combiner(this->nthreads);
 			for(size_t i = 1; i < this->nthreads; i++)
