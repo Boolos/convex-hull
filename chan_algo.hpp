@@ -28,8 +28,7 @@ namespace csce {
 			return "Chan's Algorithm";
 		}
 
-
-		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) const {
+		virtual std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) {
 			
 			for(std::size_t t=0; t<points.size(); t++){
 		

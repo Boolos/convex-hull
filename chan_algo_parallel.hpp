@@ -30,8 +30,7 @@ namespace csce {
 			return "Chan's Algorithm Parallel";
 		}
 
-
-		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) const {
+		virtual std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) {
 				 
 		std::size_t m = (points.size() % this->nthreads == 0) ? points.size() / this->nthreads : ceil (double (points.size()) / double(this->nthreads));
 				

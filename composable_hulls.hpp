@@ -27,7 +27,7 @@ namespace csce
 			return std::string("Composable Hulls <").append(U(0).name()).append(", ").append(V(0).name()).append(">");
 		}
 		
-		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>> &points) const
+		virtual std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>> &points)
 		{
 			std::vector<std::vector<csce::point<T>>> sectors(this->nthreads);
 			std::vector<std::vector<csce::point<T>>> hulls(this->nthreads);
@@ -66,7 +66,7 @@ namespace csce
 			
 			// composition of local hulls
 			
-			for(size_t i = 0; i < this->nthreads)
+			for(size_t i = 0; i < this->nthreads; i++)
 				std::cout << i << ": " << hulls[i].size() << std::endl;
 			
 			std::vector<csce::point<T>> resultsOfShortestPath = hulls[0];

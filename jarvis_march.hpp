@@ -21,7 +21,7 @@ namespace csce {
 		}
 		
 		
-		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) {
+		virtual std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) {
 			return this->performShortestPathCalculation(points);
 		}
 		
