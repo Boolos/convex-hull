@@ -9,12 +9,13 @@
 
 #include "convex_hull_base.hpp"
 #include "graham_scan.hpp"
+#include "jarvis_march.hpp"
 #include "point.hpp"
 #include "vector2d.hpp"
 
 namespace csce
 {
-	template<typename T, typename U = graham_scan<T>>
+	template<typename T, typename U = graham_scan<T>, typename V = graham_scan<T>>
 	class composable_hulls : public csce::convex_hull_base<T>
 	{
 	public:
@@ -23,7 +24,7 @@ namespace csce
 		
 		std::string name() const
 		{
-			return std::string("Composable Hulls <").append(U(0).name()).append(">");
+			return std::string("Composable Hulls <").append(U(0).name()).append(", ").append(V(0).name()).append(">");
 		}
 		
 		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>> &points) const
@@ -60,36 +61,21 @@ namespace csce
 				
 				// local convex hull
 				size_t id = omp_get_thread_num();
-				// hulls[id] = U(this->nthreads).compute_hull(sectors[id]);
-				
-				// todo: compose the local hulls
+				hulls[id] = U(1).compute_hull(sectors[id]);
 			}
 			
-			std::vector<csce::point<T>> resultsOfShortestPath;
-			/*
-			int topMostPoint = 0;
-			for(int i = 0; i < points.size(); i++){
-				if(points[i].y > points[topMostPoint].y){
-					topMostPoint = i;
-				}
-			}
+			// composition of local hulls
 			
-			int tempPoint1 = topMostPoint;
-			int tempPoint2 = 0;
-			int orientationValue = 0;
-			do{
-				tempPoint2 = (tempPoint1 + 1) % points.size();
-				for(int i = 0; i < points.size(); i++){
-					orientationValue = operation(points[tempPoint1],points[i],points[tempPoint2]);
-					if(orientationValue == 2){
-						tempPoint2 = i;
-					}
-				}
-				resultsOfShortestPath.push_back(points[tempPoint2]);
-				tempPoint1 = tempPoint2;
+			for(size_t i = 0; i < this->nthreads)
+				std::cout << i << ": " << hulls[i].size() << std::endl;
+			
+			std::vector<csce::point<T>> resultsOfShortestPath = hulls[0];
+			V combiner(this->nthreads);
+			for(size_t i = 1; i < this->nthreads; i++)
+			{
+				resultsOfShortestPath.insert(resultsOfShortestPath.end(), hulls[i].begin(), hulls[i].end());
+				resultsOfShortestPath = combiner.compute_hull(resultsOfShortestPath);
 			}
-			while(tempPoint1 != topMostPoint);
-			*/
 			
 			return resultsOfShortestPath;
 		}
