@@ -6,6 +6,7 @@
 #include <utility>
 #include <omp.h>
 #include <math.h>
+#include <sstream>
 
 #include "convex_hull_base.hpp"
 #include "graham_scan_parallel.hpp"
@@ -64,7 +65,8 @@ namespace csce
 				#pragma omp barrier
 				// local convex hull
 				size_t id = omp_get_thread_num();
-				hulls[id] = U(1).compute_hull(sectors[id]);
+				if(sectors[id].size() > 0)
+					hulls[id] = U(1).compute_hull(sectors[id]);
 			}
 			
 			// composition of local hulls
@@ -72,8 +74,11 @@ namespace csce
 			V combiner(this->nthreads);
 			for(size_t i = 1; i < this->nthreads; i++)
 			{
-				resultsOfShortestPath.insert(resultsOfShortestPath.end(), hulls[i].begin(), hulls[i].end());
-				resultsOfShortestPath = combiner.compute_hull(resultsOfShortestPath);
+				if(hulls[i].size() > 0)
+				{
+					resultsOfShortestPath.insert(resultsOfShortestPath.end(), hulls[i].begin(), hulls[i].end());
+					resultsOfShortestPath = combiner.compute_hull(resultsOfShortestPath);
+				}
 			}
 			
 			return resultsOfShortestPath;
