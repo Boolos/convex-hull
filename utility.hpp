@@ -8,6 +8,8 @@
 #include <random>
 #include <cmath>
 #include <unordered_set>
+#include <thread>
+#include <algorithm>
 
 #include "point.hpp"
 #include "vector2d.hpp"
@@ -92,6 +94,27 @@ namespace csce {
 		
 		
 		template<typename T>
+		void sort_points(std::vector<csce::point<T>>& polygon) {
+			/*remove any duplicate points (such as if the polygon is closed originally)*/
+                        std::unordered_set<csce::point<T>> point_set;
+                        for(auto& point : polygon){
+                                point_set.insert(point);
+                        }
+
+                        polygon.clear();
+			for(auto& point : point_set){
+                                polygon.push_back(point);
+                        }
+
+                        /*pick the first point to be the pivot point and sort all other points with respect to that point.*/
+                        std::sort(polygon.begin() + 1, polygon.end(), [&](csce::point<T>& a, csce::point<T>& b) {
+                                csce::vector2d<T> pa(polygon[0], a);
+                                csce::vector2d<T> pb(polygon[0], b);
+                                return pa.ccw(pb);
+                        });
+		}
+
+		template<typename T>
 		bool is_convex(const std::vector<csce::point<T>>& polygon, std::vector<std::string>& output_errors) {
 			if(polygon.size() <= 3){
 				return true; //triangles, line segments, and points are considered convex
@@ -122,26 +145,19 @@ namespace csce {
 		
 		
 		template<typename T>
-		bool contains_all_points(const std::vector<csce::point<T>>& convex_hull, const std::vector<csce::point<T>>& points, T max, std::vector<std::string>& output_errors) {
-			std::unordered_set<csce::point<T>> point_set;
-			for(auto& point : points){
-				point_set.insert(point);
-			}
+		void contains_all_points_thread(const std::vector<csce::point<T>>& convex_hull, typename std::vector<csce::point<T>>::iterator begin, typename std::vector<csce::point<T>>::iterator end, T max, std::vector<std::string>& output_errors) {
 			
-			for(auto& point : convex_hull){
-				point_set.erase(point);
-			}
-			
-			for(auto& point : point_set){
+			for(auto it = begin; it != end; it++){
 				int point_intersections = 0;
 				int intersections = 0;
+				csce::point<T>& point = *it;
 				csce::line<T> ray(point, csce::point<T>(max + 1, point.y));
 				for(std::size_t x=0; x<convex_hull.size() - 1; x++){
 					csce::line<T> segment(convex_hull[x], convex_hull[x+1]);
 					if(segment.contains_point(point)){
 						//if the point is on the border of the polygon, then
 						//the polygon "contains" the point.
-						return true;
+						return;
 					}
 					if(ray.contains_point(segment.a) || ray.contains_point(segment.b)){
 						//if either segment end-point is on the ray, then two segments
@@ -157,11 +173,53 @@ namespace csce {
 					std::stringstream error;
 					error << "Point " << point.str() << " is not inside the convex hull.";
 					output_errors.push_back(error.str());
-					return false;
 				}
 			}
 			
-			return true;
+		}
+		
+		template<typename T>
+		bool contains_all_points(const std::vector<csce::point<T>>& convex_hull, const std::vector<csce::point<T>>& points, T max, std::vector<std::string>& output_errors) {
+			unsigned int thread_count = std::max(static_cast<unsigned int>(4), std::thread::hardware_concurrency());
+			
+			std::unordered_set<csce::point<T>> point_set;
+			for(auto& point : points){
+				point_set.insert(point);
+			}
+			
+			for(auto& point : convex_hull){
+				point_set.erase(point);
+			}
+			
+			std::vector<csce::point<T>> point_vector;
+			point_vector.reserve(point_set.size());
+			for(auto& point : point_set){
+				point_vector.push_back(point);
+			}
+			
+			std::thread* threads = new std::thread[thread_count];
+			int nelements = static_cast<int>(std::ceil(static_cast<double>(point_vector.size()) / static_cast<double>(thread_count)));
+			int start = 0, stop = nelements;
+			int segment_count = 0;
+			
+			std::vector<std::vector<std::string>> thread_errors;
+			thread_errors.resize(thread_count);
+			
+			for(int x=0; x<thread_count && start < point_vector.size(); x++, start += nelements, stop += nelements){
+				threads[x] = std::thread(csce::utility::contains_all_points_thread<T>, convex_hull, point_vector.begin() + start, std::min(point_vector.begin() + stop, point_vector.end()), max, std::ref(thread_errors[x]));
+				segment_count++;
+			}
+			
+			for(int x=0; x<segment_count; x++){
+				threads[x].join();
+				for(auto& error : thread_errors[x]){
+					output_errors.push_back(error);
+				}
+			}
+			
+			delete[] threads;
+			
+			return output_errors.size() == 0;
 		}
 		
 		
@@ -175,7 +233,10 @@ namespace csce {
 				return false;
 			}
 			
+			//sort the points so that they are in either counterclockwise or clockwise order.
 			std::vector<csce::point<T>> polygon = convex_hull;
+			csce::utility::sort_points(polygon);
+
 			if(polygon[0] != polygon[polygon.size() - 1]){
 				//if the polygon is not closed, close the polygon
 				polygon.push_back(polygon[0]);

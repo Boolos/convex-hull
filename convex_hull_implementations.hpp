@@ -6,6 +6,9 @@
 #include "convex_hull_base.hpp"
 #include "graham_scan.hpp"
 #include "jarvis_march.hpp"
+#include "graham_scan_parallel.hpp"
+#include "chan_algo.hpp"
+#include "chan_algo_parallel.hpp"
 
 namespace csce {
 	namespace convex_hull_implementations {
@@ -17,8 +20,11 @@ namespace csce {
 		std::vector<csce::convex_hull_base<T>*> list(int thread_count) {
 			std::vector<csce::convex_hull_base<T>*> algorithms;
 			algorithms.push_back(new csce::graham_scan<T>(thread_count));
+			algorithms.push_back(new csce::graham_scan_parallel<T>(thread_count));
 			algorithms.push_back(new csce::jarvis_march<T>(thread_count));
-
+			algorithms.push_back(new csce::chan_algo_parallel<T>(thread_count));
+			algorithms.push_back(new csce::chan_algo<T>(thread_count));
+			
 			return algorithms;
 		}
 	}
