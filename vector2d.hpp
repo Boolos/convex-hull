@@ -19,7 +19,7 @@ namespace csce {
 		}
 		
 		T dot(const csce::vector2d<T>& other) const {
-			return this->x * other.x + this->y * other.y;
+			return this->p.x * other.p.x + this->p.y * other.p.y;
 		}
 		
 		T cross(const csce::vector2d<T>& other) const {
