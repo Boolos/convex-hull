@@ -33,6 +33,7 @@ int run(int argc, char* argv[]) {
 	long long int duration = 0;
 	bool debug = false;
 	bool test_mode = false;
+	bool verbose_validation = false; //if true (set by -v), perform an analysis of each point in the set of points, which is slower but can help with debugging.
 	
 	std::vector<csce::point<T>> points;
 	std::vector<csce::point<T>> points_copy;
@@ -42,7 +43,7 @@ int run(int argc, char* argv[]) {
 	T max = 100;
 	
 	int c;
-	while((c = getopt(argc, argv, ":dDf:m:M:n:o:r:t:")) != -1){
+	while((c = getopt(argc, argv, ":dDf:m:M:n:o:r:t:v:")) != -1){
 		switch(c){
 			case 'd':
 				debug = true;
@@ -99,6 +100,10 @@ int run(int argc, char* argv[]) {
 				}
 				break;
 				
+			case 'v':
+				verbose_validation = true;
+				break;
+
 			case '?':
 				break;
 		}
@@ -166,6 +171,8 @@ int run(int argc, char* argv[]) {
 		std::cout << "***********************************" << std::endl;
 		std::cout << std::endl << std::endl;
 	}
+
+	std::vector<csce::point<T>> validated_hull; //this is used to improve validation speed, but can be turned off using the -v flag for more verbose validation
 	
 	for(int iteration = 0; iteration < iterations; iteration++){
 		if(iterations > 1){
@@ -210,7 +217,17 @@ int run(int argc, char* argv[]) {
 
 			std::cout << "Validating convex hull (contains " << hull_points.size() << " / " << n << " points) ... " << std::flush;
 			std::vector<std::string> error_messages;
-			bool valid = csce::utility::validate<T>(hull_points, points, max, error_messages);
+
+			bool valid = true;
+			if(verbose_validation || validated_hull.empty()){
+				valid = csce::utility::validate<T>(hull_points, points, max, error_messages);
+				if(!verbose_validation && valid){
+					validated_hull = hull_points;
+				}
+			} else {
+				valid = csce::utility::quick_validate(validated_hull, hull_points, error_messages);
+			}
+
 			std::cout << (valid ? "correct" : "INCORRECT") << std::endl;
 			if(!valid){
 				std::cout << "There were " << error_messages.size() << " errors.";

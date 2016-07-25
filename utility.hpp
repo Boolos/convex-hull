@@ -252,6 +252,47 @@ namespace csce {
 			
 			return true;
 		}
+
+		template<typename T>
+		bool quick_validate(const std::vector<csce::point<T>>& validated_hull, const std::vector<csce::point<T>>& convex_hull, std::vector<std::string>& output_errors){
+			std::unordered_set<csce::point<T>> validated_set;
+			for(auto& point : validated_hull){
+				validated_set.insert(point);
+			}
+
+			std::unordered_set<csce::point<T>> convex_set;
+			for(auto& point : convex_hull){
+				convex_set.insert(point);
+			}
+
+			bool valid = true;
+			if(validated_set.size() != convex_set.size()){
+				std::stringstream output;
+				output << "The validated convex hull has (" << validated_set.size() << ") distinct points but this convex hull has (" << convex_set.size() << ") distinct points.";
+				output_errors.push_back(output.str());
+				valid = false;
+			}
+
+			for(auto& point : validated_set){
+				if(convex_set.find(point) == convex_set.end()){
+					std::stringstream output;
+					output << "The validated convex hull has point " << point.str() << " but that point is not present in the tested set of points.";
+					output_errors.push_back(output.str());
+					valid = false;
+				}
+			}
+
+			for(auto& point : convex_set){
+				if(validated_set.find(point) == validated_set.end()){
+					std::stringstream output;
+					output << "The tested set of points has point " << point.str() << " but that point is not present in the validated set of points.";
+					output_errors.push_back(output.str());
+					valid = false;
+				}
+			}
+
+			return valid; 
+		}
 	}
 }
 

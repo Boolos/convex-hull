@@ -23,7 +23,6 @@ namespace csce {
 		}
 
 		std::vector<csce::point<T>> compute_hull(std::vector<csce::point<T>>& points) {
-            std::cout << std::endl;
             std::vector<csce::point<T>> hull;
 
             auto left_most_point = get_left_most(points);

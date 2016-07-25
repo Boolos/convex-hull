@@ -12,6 +12,7 @@
 #include "point.hpp"
 #include "vector2d.hpp"
 #include "sort.hpp"
+#include "sort_parallel.hpp"
 #include "graham_scan.hpp"
 
 namespace csce {
@@ -40,9 +41,11 @@ namespace csce {
 				std::swap(points.front(), points[index]);
 			}
 			
-			csce::sort<T> sorter(points.front(), this->nthreads);
-			sorter.sort_array(points.begin() + 1, points.end());
+			//csce::sort<T> sorter(points.front());
+			//sorter.sort_array(points.begin() + 1, points.end());
 		
+			csce::sort_parallel<T>(points.front(), this->nthreads).sort_array(points.begin() + 1, points.end());
+
 			//the points are now sorted by angle with respect to the south-most point (points[0])
 			//so divide the points into four different quadrants and process each quadrant in a
 			//different thread.
