@@ -28,6 +28,7 @@ namespace csce {
 			algorithms.push_back(new csce::jarvis_march_parallel<T>(thread_count));
 			algorithms.push_back(new csce::chan_algo_parallel<T>(thread_count));
 			algorithms.push_back(new csce::chan_algo<T>(thread_count));
+			algorithms.push_back(new csce::quick_hull<T>(thread_count));
 			algorithms.push_back(new csce::composable_hulls<T, csce::graham_scan_parallel<T>, csce::graham_scan_parallel<T>>(thread_count));
 			algorithms.push_back(new csce::composable_hulls<T, csce::graham_scan_parallel<T>, csce::jarvis_march_parallel<T>>(thread_count));
 			algorithms.push_back(new csce::composable_hulls<T, csce::jarvis_march_parallel<T>, csce::graham_scan_parallel<T>>(thread_count));
