@@ -34,6 +34,7 @@ int run(int argc, char* argv[]) {
 	bool debug = false;
 	bool test_mode = false;
 	bool verbose_validation = false; //if true (set by -v), perform an analysis of each point in the set of points, which is slower but can help with debugging.
+	bool should_validate = true;
 	
 	std::vector<csce::point<T>> points;
 	std::vector<csce::point<T>> points_copy;
@@ -43,7 +44,7 @@ int run(int argc, char* argv[]) {
 	T max = 100;
 	
 	int c;
-	while((c = getopt(argc, argv, ":dDf:m:M:n:o:r:t:v:")) != -1){
+	while((c = getopt(argc, argv, ":dDf:m:M:n:o:r:t:vV")) != -1){
 		switch(c){
 			case 'd':
 				debug = true;
@@ -102,6 +103,10 @@ int run(int argc, char* argv[]) {
 				
 			case 'v':
 				verbose_validation = true;
+				break;
+
+			case 'V':
+				should_validate = false;
 				break;
 
 			case '?':
@@ -215,27 +220,33 @@ int run(int argc, char* argv[]) {
 				std::cout << "done printing convex" << std::endl << std::endl;
 			}
 
-			std::cout << "Validating convex hull (contains " << hull_points.size() << " / " << n << " points) ... " << std::flush;
-			std::vector<std::string> error_messages;
+			if(should_validate){
+				std::cout << "Validating convex hull (contains " << hull_points.size() << " / " << n << " points) ... " << std::flush;
+				std::vector<std::string> error_messages;
 
-			bool valid = true;
-			if(verbose_validation || validated_hull.empty()){
-				valid = csce::utility::validate<T>(hull_points, points, max, error_messages);
-				if(!verbose_validation && valid){
-					validated_hull = hull_points;
+				bool valid = true;
+				if(verbose_validation || validated_hull.empty()){
+					valid = csce::utility::validate<T>(hull_points, points, max, error_messages);
+					if(!verbose_validation && valid){
+						validated_hull = hull_points;
+					}
+				} else {
+					valid = csce::utility::quick_validate(validated_hull, hull_points, error_messages);
+				}
+
+				std::cout << (valid ? "correct" : "INCORRECT") << std::endl;
+				if(!valid){
+					std::cout << "There were " << error_messages.size() << " errors.";
+					std::cout << std::endl;
+					for(std::string& message : error_messages){
+						std::cout << "Error: " << message << std::endl;
+					}
+				} else {
+					std::get<2>(algorithm_tuples[x])++;
 				}
 			} else {
-				valid = csce::utility::quick_validate(validated_hull, hull_points, error_messages);
-			}
-
-			std::cout << (valid ? "correct" : "INCORRECT") << std::endl;
-			if(!valid){
-				std::cout << "There were " << error_messages.size() << " errors.";
-				std::cout << std::endl;
-				for(std::string& message : error_messages){
-					std::cout << "Error: " << message << std::endl;
-				}
-			} else {
+				//do not perform validation
+				std::cout << "Skipping validation (convex hull contains " << hull_points.size() << " / " << n << " points)" << std::endl;
 				std::get<2>(algorithm_tuples[x])++;
 			}
 			std::cout << "-------------------------------------------" << std::endl;
