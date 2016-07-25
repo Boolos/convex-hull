@@ -12,6 +12,8 @@
 #include "chan_algo.hpp"
 #include "chan_algo_parallel.hpp"
 #include "composable_hulls.hpp"
+#include "quick_hull.hpp"
+#include "quick_hull_parallel.hpp"
 
 namespace csce {
 	namespace convex_hull_implementations {
@@ -33,6 +35,7 @@ namespace csce {
 			algorithms.push_back(new csce::composable_hulls<T, csce::graham_scan_parallel<T>, csce::jarvis_march_parallel<T>>(thread_count));
 			algorithms.push_back(new csce::composable_hulls<T, csce::jarvis_march_parallel<T>, csce::graham_scan_parallel<T>>(thread_count));
 			algorithms.push_back(new csce::composable_hulls<T, csce::jarvis_march_parallel<T>, csce::jarvis_march_parallel<T>>(thread_count));
+csce::quick_hull_parallel<T>(thread_count));
 			
 			return algorithms;
 		}

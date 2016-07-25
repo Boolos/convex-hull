@@ -19,7 +19,7 @@ namespace csce {
 			return csce::vector2d<T>(a, b);
 		}
 		
-		long double distance_to(const csce::point<T>& p) {
+		long double distance_to(const csce::point<T>& p) const {
 			csce::vector2d<T> ab = this->to_vector2d();
 			csce::vector2d<T> bc(this->b, p);
 			T dp = ab.dot(bc);
