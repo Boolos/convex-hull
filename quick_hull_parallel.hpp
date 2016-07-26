@@ -34,14 +34,12 @@ namespace csce {
             line<T> right_to_left = { right_most_point, left_most_point };
             auto partition = pp(points, left_to_right);
 
-            this->pindex = 2;
-            this->threads[0] = std::thread(&csce::quick_hull_parallel<T>::get_hull, this, partition.first, left_to_right);
-            this->threads[1] = std::thread(&csce::quick_hull_parallel<T>::get_hull, this, partition.second, right_to_left);
+            std::thread l_thread(&csce::quick_hull_parallel<T>::get_hull, this, partition.first, left_to_right);
+            std::thread r_thread(&csce::quick_hull_parallel<T>::get_hull, this, partition.second, right_to_left);
             
-            this->threads[0].join();
-            this->threads[1].join();
+            l_thread.join();
+            r_thread.join();
 
-            delete[] threads;
             return this->hull;
         }
 
@@ -149,8 +147,6 @@ namespace csce {
         int nthread;
         std::vector<csce::point<T>> hull;
         std::mutex mut;
-        std::thread* threads = new std::thread[this->nthreads];
-        int pindex = 0;
 	};
 }
 
