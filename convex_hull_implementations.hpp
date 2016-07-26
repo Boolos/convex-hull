@@ -23,18 +23,16 @@ namespace csce {
 		template<typename T>
 		std::vector<csce::convex_hull_base<T>*> list(int thread_count) {
 			std::vector<csce::convex_hull_base<T>*> algorithms;
+			algorithms.push_back(new csce::composable_hulls<T, csce::graham_scan<T>, csce::graham_scan_parallel<T>>(thread_count));
+			algorithms.push_back(new csce::composable_hulls<T, csce::quick_hull<T>, csce::graham_scan_parallel<T>>(thread_count));
 			algorithms.push_back(new csce::graham_scan<T>(thread_count));
 			algorithms.push_back(new csce::graham_scan_parallel<T>(thread_count));
 			algorithms.push_back(new csce::jarvis_march<T>(thread_count));
 			algorithms.push_back(new csce::jarvis_march_parallel<T>(thread_count));
-			algorithms.push_back(new csce::chan_algo_parallel<T>(thread_count));
+			// algorithms.push_back(new csce::chan_algo_parallel<T>(thread_count));
 			algorithms.push_back(new csce::chan_algo<T>(thread_count));
 			algorithms.push_back(new csce::quick_hull<T>(thread_count));
 			algorithms.push_back(new csce::quick_hull_parallel<T>(thread_count));
-			algorithms.push_back(new csce::composable_hulls<T, csce::chan_algo_parallel<T>, csce::chan_algo_parallel<T>>(thread_count));
-			algorithms.push_back(new csce::composable_hulls<T, csce::chan_algo_parallel<T>, csce::quick_hull_parallel<T>>(thread_count));
-			algorithms.push_back(new csce::composable_hulls<T, csce::quick_hull_parallel<T>, csce::chan_algo_parallel<T>>(thread_count));
-			algorithms.push_back(new csce::composable_hulls<T, csce::quick_hull_parallel<T>, csce::quick_hull_parallel<T>>(thread_count));
 			
 			return algorithms;
 		}
