@@ -54,6 +54,13 @@ namespace csce
 				for(size_t i = 0; i < points.size(); i++)
 				{
 					double theta = atan2(points[topMostPoint].y - points[i].y, points[topMostPoint].x - points[i].x);
+					if(theta < 0)
+					{
+						if(theta + 1e-3 > 0)
+							theta = 1e-9;
+						else
+							theta = M_PI - 1e-9;
+					}
 					size_t sector = theta / secSize;
 					localSectors[sector].push_back(points[i]);
 				}
@@ -65,8 +72,10 @@ namespace csce
 				#pragma omp barrier
 				// local convex hull
 				size_t id = omp_get_thread_num();
-				if(sectors[id].size() > 0)
+				if(sectors[id].size() > 2)
 					hulls[id] = U(1).compute_hull(sectors[id]);
+				else
+					; // hulls[id] = sectors[id]; // not actually a hull, but the points may be in the final hull
 			}
 			
 			// composition of local hulls
