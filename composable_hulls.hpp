@@ -75,7 +75,7 @@ namespace csce
 				if(sectors[id].size() > 2)
 					hulls[id] = U(1).compute_hull(sectors[id]);
 				else
-					; // hulls[id] = sectors[id]; // not actually a hull, but the points may be in the final hull
+					hulls[id] = sectors[id]; // not actually a hull, but the points may be in the final hull
 			}
 			
 			// composition of local hulls
